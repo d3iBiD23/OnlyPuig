@@ -1,5 +1,6 @@
 package com.example.onlypuig;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -217,7 +218,14 @@ public class HomeFragment extends Fragment {
             if (post.get("uid") != null && post.get("uid").toString().equals(userId)) {
                 holder.deleteImageView.setVisibility(View.VISIBLE);
                 holder.deleteImageView.setOnClickListener(view -> {
-                    deletePost(post.get("$id").toString());
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Eliminar post")
+                            .setMessage("¿Estás seguro de que deseas eliminar este post?")
+                            .setPositiveButton("Sí", (dialog, which) -> {
+                                deletePost(post.get("$id").toString());
+                            })
+                            .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
+                            .show();
                 });
             } else {
                 holder.deleteImageView.setVisibility(View.GONE);
