@@ -51,6 +51,28 @@ public class HomeFragment extends Fragment {
     public HomeFragment() {
     }
 
+    void deletePost(String postId) {
+        Databases databases = new Databases(client);
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        try {
+            databases.deleteDocument(
+                    getString(R.string.APPWRITE_DATABASE_ID),
+                    getString(R.string.APPWRITE_POSTS_COLLECTION_ID),
+                    postId,
+                    new CoroutineCallback<>((result, error) -> {
+                        if (error != null) {
+                            Snackbar.make(requireView(), "Error al eliminar el post: " + error.toString(), Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                        // Refrescar lista de posts despues de eliminar
+                        mainHandler.post(() -> obtenerPosts());
+                    })
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_home, container, false);
@@ -100,7 +122,7 @@ public class HomeFragment extends Fragment {
     }
 
     class PostViewHolder extends RecyclerView.ViewHolder {
-        ImageView authorPhotoImageView, likeImageView, mediaImageView;
+        ImageView authorPhotoImageView, likeImageView, mediaImageView, deleteImageView;
         TextView authorTextView, contentTextView, numLikesTextView;
 
         PostViewHolder(@NonNull View itemView) {
@@ -108,6 +130,7 @@ public class HomeFragment extends Fragment {
             authorPhotoImageView = itemView.findViewById(R.id.authorPhotoImageView);
             likeImageView = itemView.findViewById(R.id.likeImageView);
             mediaImageView = itemView.findViewById(R.id.mediaImage);
+            deleteImageView = itemView.findViewById(R.id.deleteImageView);
             authorTextView = itemView.findViewById(R.id.authorTextView);
             contentTextView = itemView.findViewById(R.id.contentTextView);
             numLikesTextView = itemView.findViewById(R.id.numLikesTextView);
@@ -120,12 +143,15 @@ public class HomeFragment extends Fragment {
         @NonNull
         @Override
         public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new PostViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.viewholder_post, parent, false));
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.viewholder_post, parent, false);
+            return new PostViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
             Map<String, Object> post = lista.getDocuments().get(position).getData();
+
+            // Configuración de la imagen del autor
             if (post.get("authorPhotoUrl") == null) {
                 holder.authorPhotoImageView.setImageResource(R.drawable.user);
             } else {
@@ -134,44 +160,50 @@ public class HomeFragment extends Fragment {
             holder.authorTextView.setText(post.get("author").toString());
             holder.contentTextView.setText(post.get("content").toString());
 
-            // Gestion de likes
+            // Gestión de likes (código existente)
             List<String> likes = (List<String>) post.get("likes");
-            if (likes.contains(userId)) holder.likeImageView.setImageResource(R.drawable.like_on);
-            else holder.likeImageView.setImageResource(R.drawable.like_off);
+            if (likes.contains(userId))
+                holder.likeImageView.setImageResource(R.drawable.like_on);
+            else
+                holder.likeImageView.setImageResource(R.drawable.like_off);
             holder.numLikesTextView.setText(String.valueOf(likes.size()));
             holder.likeImageView.setOnClickListener(view -> {
                 Databases databases = new Databases(client);
                 Handler mainHandler = new Handler(Looper.getMainLooper());
                 List<String> nuevosLikes = likes;
-                if (nuevosLikes.contains(userId)) nuevosLikes.remove(userId);
-                else nuevosLikes.add(userId);
+                if (nuevosLikes.contains(userId))
+                    nuevosLikes.remove(userId);
+                else
+                    nuevosLikes.add(userId);
                 Map<String, Object> data = new HashMap<>();
                 data.put("likes", nuevosLikes);
                 try {
-                    databases.updateDocument(getString(R.string.APPWRITE_DATABASE_ID), getString(R.string.APPWRITE_POSTS_COLLECTION_ID), post.get("$id").toString(), // documentId
-                            data, // data (optional)
-                            new ArrayList<>(), // permissions (optional)
+                    databases.updateDocument(
+                            getString(R.string.APPWRITE_DATABASE_ID),
+                            getString(R.string.APPWRITE_POSTS_COLLECTION_ID),
+                            post.get("$id").toString(),
+                            data,
+                            new ArrayList<>(),
                             new CoroutineCallback<>((result, error) -> {
                                 if (error != null) {
                                     error.printStackTrace();
                                     return;
                                 }
-                                System.out.println("Likes actualizados:" + result.toString());
                                 mainHandler.post(() -> obtenerPosts());
-                            }));
+                            })
+                    );
                 } catch (AppwriteException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             });
 
-            // Miniatura de media
+            // Gestión de la miniatura de media (código existente)
             if (post.get("mediaUrl") != null) {
                 holder.mediaImageView.setVisibility(View.VISIBLE);
                 if ("audio".equals(post.get("mediaType").toString())) {
                     Glide.with(requireView()).load(R.drawable.audio).centerCrop().into(holder.mediaImageView);
                 } else {
-                    Glide.with(requireView()).load(post.get("mediaUrl").toString()).centerCrop().into
-                            (holder.mediaImageView);
+                    Glide.with(getContext()).load(post.get("mediaUrl").toString()).centerCrop().into(holder.mediaImageView);
                 }
                 holder.mediaImageView.setOnClickListener(view -> {
                     appViewModel.postSeleccionado.setValue(post);
@@ -179,6 +211,16 @@ public class HomeFragment extends Fragment {
                 });
             } else {
                 holder.mediaImageView.setVisibility(View.GONE);
+            }
+
+            // Mostrar botón de eliminar solo si el usuario es el autor del post
+            if (post.get("uid") != null && post.get("uid").toString().equals(userId)) {
+                holder.deleteImageView.setVisibility(View.VISIBLE);
+                holder.deleteImageView.setOnClickListener(view -> {
+                    deletePost(post.get("$id").toString());
+                });
+            } else {
+                holder.deleteImageView.setVisibility(View.GONE);
             }
         }
 

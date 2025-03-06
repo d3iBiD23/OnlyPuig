@@ -45,7 +45,7 @@
                 android:layout_width="196dp"
                 android:layout_height="196dp"
                 android:layout_marginTop="10dp"
-                android:adjustViewBounds="true"/>
+                android:adjustViewBounds="true" />
 
             <LinearLayout
                 android:id="@+id/likeLinearLayout"
@@ -69,7 +69,16 @@
                     android:layout_gravity="center_vertical"
                     android:layout_marginStart="4dp"
                     android:text="200K" />
+                <!-- Botón de eliminar post -->
             </LinearLayout>
+            <ImageView
+                android:id="@+id/deleteImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:contentDescription="Eliminar post"
+                android:src="@android:drawable/ic_menu_delete"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
