@@ -124,7 +124,7 @@ public class HomeFragment extends Fragment {
 
     class PostViewHolder extends RecyclerView.ViewHolder {
         ImageView authorPhotoImageView, likeImageView, mediaImageView, deleteImageView;
-        TextView authorTextView, contentTextView, numLikesTextView;
+        TextView authorTextView, contentTextView, numLikesTextView, commentTextView;
 
         PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -135,6 +135,7 @@ public class HomeFragment extends Fragment {
             authorTextView = itemView.findViewById(R.id.authorTextView);
             contentTextView = itemView.findViewById(R.id.contentTextView);
             numLikesTextView = itemView.findViewById(R.id.numLikesTextView);
+            commentTextView = itemView.findViewById(R.id.commentsRecyclerView);
         }
     }
 
@@ -213,6 +214,8 @@ public class HomeFragment extends Fragment {
             } else {
                 holder.mediaImageView.setVisibility(View.GONE);
             }
+
+            holder.commentTextView.setText(post.get("comments").toString());
 
             // Mostrar botón de eliminar solo si el usuario es el autor del post
             if (post.get("uid") != null && post.get("uid").toString().equals(userId)) {
