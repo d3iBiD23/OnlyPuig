@@ -215,7 +215,10 @@ public class HomeFragment extends Fragment {
                 holder.mediaImageView.setVisibility(View.GONE);
             }
 
-            holder.commentTextView.setText(post.get("comments").toString());
+            holder.commentTextView.setOnClickListener(view -> {
+                appViewModel.postSeleccionado.setValue(post);
+                navController.navigate(R.id.commentsRecyclerView);
+            });
 
             // Mostrar botón de eliminar solo si el usuario es el autor del post
             if (post.get("uid") != null && post.get("uid").toString().equals(userId)) {

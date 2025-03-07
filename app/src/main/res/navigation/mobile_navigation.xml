@@ -40,4 +40,11 @@
         android:name="com.example.onlypuig.MediaFragment"
         android:label="fragment_media"
         tools:layout="@layout/fragment_media" />
+
+    <fragment
+        android:id="@+id/commentsRecyclerView"
+        android:name="com.example.onlypuig.CommentsFragment"
+        android:label="fragment_comments"
+        tools:layout="@layout/fragment_comments"
+        />
 </navigation>
