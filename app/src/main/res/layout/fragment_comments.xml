@@ -8,9 +8,9 @@
 
     <!-- RecyclerView para listar los comentarios -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/commentsRecyclerView"
+        android:id="@+id/commentsFragment"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="513dp"
         android:layout_weight="1"
         android:scrollbars="vertical" />
 

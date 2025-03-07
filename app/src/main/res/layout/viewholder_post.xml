@@ -79,6 +79,11 @@
                 android:contentDescription="Eliminar post"
                 android:src="@android:drawable/ic_menu_delete"
                 android:visibility="gone" />
+            <TextView
+                android:id="@+id/commentTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Texto del comentario" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

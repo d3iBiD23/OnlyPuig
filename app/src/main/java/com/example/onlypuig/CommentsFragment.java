@@ -79,7 +79,7 @@ public class CommentsFragment extends Fragment {
                     getString(R.string.APPWRITE_DATABASE_ID),
                     getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID),
                     new ArrayList<String>() {{
-                        add("postId=" + postId);
+                        add("equal('postId', '" + postId + "')");
                     }},
                     new CoroutineCallback<>((result, error) -> {
                         if (error != null) {
@@ -99,7 +99,7 @@ public class CommentsFragment extends Fragment {
         Handler mainHandler = new Handler(Looper.getMainLooper());
         Map<String, Object> data = new HashMap<>();
         data.put("postId", postId);
-        data.put("comment", commentText);
+        data.put("content", commentText);
         // Puedes agregar más campos, como "author" o "createdAt"
         try {
             databases.createDocument(

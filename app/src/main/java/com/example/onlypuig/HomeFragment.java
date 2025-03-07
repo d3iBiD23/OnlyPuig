@@ -135,7 +135,7 @@ public class HomeFragment extends Fragment {
             authorTextView = itemView.findViewById(R.id.authorTextView);
             contentTextView = itemView.findViewById(R.id.contentTextView);
             numLikesTextView = itemView.findViewById(R.id.numLikesTextView);
-            commentTextView = itemView.findViewById(R.id.commentsRecyclerView);
+            commentTextView = itemView.findViewById(R.id.commentTextView);
         }
     }
 
@@ -215,10 +215,7 @@ public class HomeFragment extends Fragment {
                 holder.mediaImageView.setVisibility(View.GONE);
             }
 
-            holder.commentTextView.setOnClickListener(view -> {
-                appViewModel.postSeleccionado.setValue(post);
-                navController.navigate(R.id.commentsRecyclerView);
-            });
+            holder.commentTextView.setOnClickListener(view -> { appViewModel.postSeleccionado.setValue(post); navController.navigate(R.id.commentsRecyclerView); });
 
             // Mostrar botón de eliminar solo si el usuario es el autor del post
             if (post.get("uid") != null && post.get("uid").toString().equals(userId)) {
