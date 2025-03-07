@@ -35,6 +35,8 @@ public class CommentsFragment extends Fragment {
     private AppViewModel appViewModel;
     private Client client;
     private String postId;
+    private String userId;      // Para guardar el UID
+    private String userName;    // Para guardar el nombre del autor
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -45,11 +47,13 @@ public class CommentsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        commentsRecyclerView = view.findViewById(R.id.commentsRecyclerView);
+        commentsRecyclerView = view.findViewById(R.id.commentsFragment);
         commentEditText = view.findViewById(R.id.commentEditText);
         postCommentButton = view.findViewById(R.id.postCommentButton);
+        adapter = new CommentsAdapter();
+        commentsRecyclerView.setAdapter(adapter);
 
-        // Obtenemos el post seleccionado (su id) desde el ViewModel o argumentos
+        // Obtenemos el post seleccionado (su id) desde el ViewModel
         appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
         Map<String, Object> selectedPost = appViewModel.postSeleccionado.getValue();
         if (selectedPost != null && selectedPost.get("$id") != null) {
@@ -57,6 +61,12 @@ public class CommentsFragment extends Fragment {
         }
 
         client = new Client(requireContext()).setProject(getString(R.string.APPWRITE_PROJECT_ID));
+
+        // (Opcional) Cargar el usuario actual si quieres guardar su nombre/uid en el comentario
+        // Podrías hacerlo igual que en HomeFragment, con account.get(...)
+        // Suponiendo que ya lo obtuviste antes, por ejemplo:
+        // userId = ...
+        // userName = ...
 
         loadComments();
 
@@ -74,19 +84,26 @@ public class CommentsFragment extends Fragment {
         Databases databases = new Databases(client);
         Handler mainHandler = new Handler(Looper.getMainLooper());
         try {
-            // Aquí debes filtrar por "postId" para obtener solo los comentarios del post
+            // Filtrar por "postId"
+            ArrayList<String> queries = new ArrayList<>();
+            queries.add("equal(\"postId\", \"" + postId + "\")");
+            // O: queries.add("equal('postId', '" + postId + "')");
+
             databases.listDocuments(
                     getString(R.string.APPWRITE_DATABASE_ID),
                     getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID),
-                    new ArrayList<String>() {{
-                        add("equal('postId', '" + postId + "')");
-                    }},
+                    queries,
                     new CoroutineCallback<>((result, error) -> {
                         if (error != null) {
-                            Snackbar.make(requireView(), "Error al cargar comentarios: " + error.toString(), Snackbar.LENGTH_LONG).show();
+                            mainHandler.post(() ->
+                                    Snackbar.make(requireView(), "Error al cargar comentarios: " + error.toString(), Snackbar.LENGTH_LONG).show()
+                            );
                             return;
                         }
-                        mainHandler.post(() -> adapter.setComments(result));
+                        // Muy importante: setear la lista en el adapter
+                        mainHandler.post(() -> {
+                            adapter.setComments(result);
+                        });
                     })
             );
         } catch (AppwriteException e) {
@@ -100,7 +117,9 @@ public class CommentsFragment extends Fragment {
         Map<String, Object> data = new HashMap<>();
         data.put("postId", postId);
         data.put("content", commentText);
-        // Puedes agregar más campos, como "author" o "createdAt"
+        // data.put("author", userName);
+        // data.put("uid", userId);
+
         try {
             databases.createDocument(
                     getString(R.string.APPWRITE_DATABASE_ID),
@@ -110,7 +129,9 @@ public class CommentsFragment extends Fragment {
                     new ArrayList<>(),
                     new CoroutineCallback<>((result, error) -> {
                         if (error != null) {
-                            Snackbar.make(requireView(), "Error al publicar comentario: " + error.toString(), Snackbar.LENGTH_LONG).show();
+                            mainHandler.post(() ->
+                                    Snackbar.make(requireView(), "Error al publicar comentario: " + error.toString(), Snackbar.LENGTH_LONG).show()
+                            );
                             return;
                         }
                         mainHandler.post(() -> {

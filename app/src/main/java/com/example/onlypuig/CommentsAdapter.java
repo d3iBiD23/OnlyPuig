@@ -33,14 +33,13 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
-        // Obtenemos los datos del comentario
         Map<String, Object> commentData = commentsList.getDocuments().get(position).getData();
 
-        // Extraemos campos, por ejemplo "author" y "comment"
+        // author (si lo guardaste en el doc) o anónimo
         String author = commentData.get("author") != null ? commentData.get("author").toString() : "Anónimo";
-        String commentText = commentData.get("comment") != null ? commentData.get("comment").toString() : "";
+        // ahora usamos "content" en vez de "comment"
+        String commentText = commentData.get("content") != null ? commentData.get("content").toString() : "";
 
-        // Asignamos los valores a las vistas
         holder.authorTextView.setText(author);
         holder.commentTextView.setText(commentText);
     }
