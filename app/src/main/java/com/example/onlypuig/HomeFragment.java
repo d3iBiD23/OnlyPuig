@@ -215,7 +215,13 @@ public class HomeFragment extends Fragment {
                 holder.mediaImageView.setVisibility(View.GONE);
             }
 
-            holder.commentTextView.setOnClickListener(view -> { appViewModel.postSeleccionado.setValue(post); navController.navigate(R.id.commentsRecyclerView); });
+            // Dentro de onBindViewHolder de PostsAdapter:
+            holder.commentTextView.setOnClickListener(view -> {
+                // Guardamos el post actual en el ViewModel para que el fragmento de comentarios lo reciba
+                appViewModel.postSeleccionado.setValue(post);
+                // Navegamos al fragmento de comentarios (asegúrate de tener definido el id en tu nav_graph)
+                navController.navigate(R.id.commentsRecyclerView);
+            });
 
             // Mostrar botón de eliminar solo si el usuario es el autor del post
             if (post.get("uid") != null && post.get("uid").toString().equals(userId)) {

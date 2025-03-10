@@ -83,7 +83,8 @@
                 android:id="@+id/commentTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Texto del comentario" />
+                android:text="Ver comentarios"
+                android:textColor="@color/white" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
