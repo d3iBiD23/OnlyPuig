@@ -8,56 +8,45 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
 import java.util.Map;
 
 import io.appwrite.models.DocumentList;
 
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentViewHolder> {
 
-    // Almacenamos la lista de documentos con los comentarios.
-    private DocumentList<Map<String, Object>> commentsList;
+    private List<Map<String, Object>> comments;
 
-    // Metodo para actualizar la lista de comentarios
-    public void setComments(DocumentList<Map<String, Object>> commentsList) {
-        this.commentsList = commentsList;
+    public void setComments(List<Map<String, Object>> comments) {
+        this.comments = comments;
         notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflamos el layout para cada comentario (asegúrate de tener viewholder_comment.xml en res/layout)
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.viewholder_comment, parent, false);
         return new CommentViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
-        Map<String, Object> commentData = commentsList.getDocuments().get(position).getData();
-
-        // author (si lo guardaste en el doc) o anónimo
-        String author = commentData.get("author") != null ? commentData.get("author").toString() : "Anónimo";
-        // ahora usamos "content" en vez de "comment"
-        String commentText = commentData.get("content") != null ? commentData.get("content").toString() : "";
-
+        Map<String, Object> comment = comments.get(position);
+        String author = comment.get("author") != null ? comment.get("author").toString() : "Anónimo";
+        String content = comment.get("content") != null ? comment.get("content").toString() : "";
         holder.authorTextView.setText(author);
-        holder.commentTextView.setText(commentText);
+        holder.commentTextView.setText(content);
     }
 
     @Override
     public int getItemCount() {
-        return commentsList == null ? 0 : commentsList.getDocuments().size();
+        return comments == null ? 0 : comments.size();
     }
 
-    // ViewHolder para cada comentario
     static class CommentViewHolder extends RecyclerView.ViewHolder {
-
-        TextView authorTextView;
-        TextView commentTextView;
-
+        TextView authorTextView, commentTextView;
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
-            // Asegúrate de que los IDs coincidan con los definidos en viewholder_comment.xml
             authorTextView = itemView.findViewById(R.id.commentAuthorTextView);
             commentTextView = itemView.findViewById(R.id.commentTextView);
         }

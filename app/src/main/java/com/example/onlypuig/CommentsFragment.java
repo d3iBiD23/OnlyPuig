@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -50,6 +51,7 @@ public class CommentsFragment extends Fragment {
         commentsRecyclerView = view.findViewById(R.id.commentsFragment);
         commentEditText = view.findViewById(R.id.commentEditText);
         postCommentButton = view.findViewById(R.id.postCommentButton);
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter = new CommentsAdapter();
         commentsRecyclerView.setAdapter(adapter);
 
@@ -86,8 +88,7 @@ public class CommentsFragment extends Fragment {
         try {
             // Filtrar por "postId"
             ArrayList<String> queries = new ArrayList<>();
-            queries.add("equal(\"postId\", \"" + postId + "\")");
-            // O: queries.add("equal('postId', '" + postId + "')");
+            queries.add("equal('postId','" + postId + "')");
 
             databases.listDocuments(
                     getString(R.string.APPWRITE_DATABASE_ID),
@@ -117,8 +118,6 @@ public class CommentsFragment extends Fragment {
         Map<String, Object> data = new HashMap<>();
         data.put("postId", postId);
         data.put("content", commentText);
-        // data.put("author", userName);
-        // data.put("uid", userId);
 
         try {
             databases.createDocument(
