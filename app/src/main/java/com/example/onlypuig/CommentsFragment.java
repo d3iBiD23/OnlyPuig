@@ -123,7 +123,7 @@ public class CommentsFragment extends Fragment {
                         return;
                     }
                     // Recarga los comentarios tras la eliminación
-                    new Handler(Looper.getMainLooper()).post(() -> loadComments());
+                    new Handler(Looper.getMainLooper()).post(this::loadComments);
                 })
         );
     }

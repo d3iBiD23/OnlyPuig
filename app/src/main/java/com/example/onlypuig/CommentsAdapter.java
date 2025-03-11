@@ -51,16 +51,16 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         holder.authorTextView.setText(author);
         holder.commentTextView.setText(content);
 
-        // Mostrar botón de borrar solo si el comentario pertenece al usuario actual
+        // Mostrar "Borrar comentario" solo si el comentario pertenece al usuario actual
         if (currentUserName != null && currentUserName.equals(author)) {
-            holder.deleteCommentButton.setVisibility(View.VISIBLE);
-            holder.deleteCommentButton.setOnClickListener(v -> {
+            holder.deleteCommentTextView.setVisibility(View.VISIBLE);
+            holder.deleteCommentTextView.setOnClickListener(v -> {
                 if (deleteListener != null) {
                     deleteListener.onDeleteComment(comment);
                 }
             });
         } else {
-            holder.deleteCommentButton.setVisibility(View.GONE);
+            holder.deleteCommentTextView.setVisibility(View.GONE);
         }
     }
 
@@ -70,13 +70,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     }
 
     static class CommentViewHolder extends RecyclerView.ViewHolder {
-        TextView authorTextView, commentTextView;
-        ImageView deleteCommentButton;
+        TextView authorTextView, commentTextView, deleteCommentTextView;
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             authorTextView = itemView.findViewById(R.id.commentAuthorTextView);
             commentTextView = itemView.findViewById(R.id.commentTextView);
-            deleteCommentButton = itemView.findViewById(R.id.deleteCommentButton);
+            deleteCommentTextView = itemView.findViewById(R.id.deleteCommentTextView);
         }
     }
 }
