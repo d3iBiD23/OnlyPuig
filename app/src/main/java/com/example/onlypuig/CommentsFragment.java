@@ -56,9 +56,14 @@ public class CommentsFragment extends Fragment {
         appViewModel = new ViewModelProvider(requireActivity()).get(AppViewModel.class);
         // El post seleccionado lo guardamos en el ViewModel
         Map<String, Object> post = appViewModel.postSeleccionado.getValue();
+
         if (post != null && post.get("$id") != null) {
             postId = post.get("$id").toString();
+            System.out.println("postId: " + postId);
+        } else {
+            System.out.println("El post seleccionado es nulo o no contiene $id");
         }
+
         client = new Client(requireContext()).setProject(getString(R.string.APPWRITE_PROJECT_ID));
 
         // Cargar los comentarios (directamente del post)
@@ -87,7 +92,9 @@ public class CommentsFragment extends Fragment {
                     queries,
                     new CoroutineCallback<>((result, error) -> {
                         if (error != null) {
-                            // Manejo de error
+                            new Handler(Looper.getMainLooper()).post(() ->
+                                    Snackbar.make(requireView(), "Error al cargar comentario: " + error.getMessage(), Snackbar.LENGTH_LONG).show()
+                            );
                             return;
                         }
                         // Suponiendo que el result.getDocuments() te da la lista de documentos
@@ -122,7 +129,9 @@ public class CommentsFragment extends Fragment {
                     new ArrayList<>(),
                     new CoroutineCallback<>((result, error) -> {
                         if (error != null) {
-                            // Muestra error, por ejemplo con Snackbar
+                            new Handler(Looper.getMainLooper()).post(() ->
+                                    Snackbar.make(requireView(), "Error al crear comentario: " + error.getMessage(), Snackbar.LENGTH_LONG).show()
+                            );
                             return;
                         }
                         // Vuelve a cargar los comentarios después de publicar
