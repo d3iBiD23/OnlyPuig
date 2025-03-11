@@ -155,11 +155,12 @@ public class HomeFragment extends Fragment {
             Map<String, Object> post = lista.getDocuments().get(position).getData();
 
             // Configuración de la imagen del autor
-            if (post.get("authorPhotoUrl") == null) {
-                holder.authorPhotoImageView.setImageResource(R.drawable.user);
+            if (post.get("uid") != null) {
+                loadAuthorProfilePhoto(post.get("uid").toString(), holder.authorPhotoImageView);
             } else {
-                Glide.with(getContext()).load(post.get("authorPhotoUrl").toString()).circleCrop().into(holder.authorPhotoImageView);
+                holder.authorPhotoImageView.setImageResource(R.drawable.user);
             }
+
             holder.authorTextView.setText(post.get("author").toString());
             holder.contentTextView.setText(post.get("content").toString());
 

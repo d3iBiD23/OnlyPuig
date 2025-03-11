@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
 
         // Configurar el launcher para seleccionar imagen
         imagePickerLauncher = registerForActivityResult(new ActivityResultContracts.GetContent(), uri -> {
-            if(uri != null) {
+            if (uri != null) {
                 uploadProfilePhoto(uri);
             }
         });
@@ -84,7 +84,7 @@ public class ProfileFragment extends Fragment {
         Handler mainHandler = new Handler(Looper.getMainLooper());
         try {
             account.get(new CoroutineCallback<>((result, error) -> {
-                if(error != null) {
+                if (error != null) {
                     error.printStackTrace();
                     return;
                 }
@@ -92,15 +92,13 @@ public class ProfileFragment extends Fragment {
                 mainHandler.post(() -> {
                     displayNameTextView.setText(result.getName().toString());
                     emailTextView.setText(result.getEmail().toString());
-                    // Aquí podrías cargar la foto de perfil desde la colección "profiles".
-                    // Por defecto, usamos un drawable por ejemplo:
-                    Glide.with(requireView()).load(R.drawable.user).into(photoImageView);
+                    // Se carga la foto actualizada del perfil desde la base de datos
+                    loadProfilePhoto(userId, photoImageView);
                 });
             }));
         } catch (AppwriteException e) {
             e.printStackTrace();
         }
-
     }
 
     private void uploadProfilePhoto(Uri uri) {
