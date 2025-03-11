@@ -1,5 +1,6 @@
 package com.example.onlypuig;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -98,7 +99,14 @@ public class CommentsFragment extends Fragment {
         // Configura el callback para borrar un comentario
         adapter.setOnCommentDeleteListener(comment -> {
             String commentId = comment.get("$id").toString();
-            deleteComment(commentId);
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Eliminar comentario")
+                    .setMessage("¿Estás seguro de que deseas eliminar este comentario?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        deleteComment(commentId);
+                    })
+                    .setNegativeButton("Cancelar", (dialog, which) -> dialog.dismiss())
+                    .show();
         });
     }
 
