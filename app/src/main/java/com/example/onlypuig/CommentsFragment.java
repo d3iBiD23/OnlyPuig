@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import io.appwrite.Client;
 import io.appwrite.coroutines.CoroutineCallback;
@@ -75,62 +76,63 @@ public class CommentsFragment extends Fragment {
 
     // Lee el arreglo "comments" del post actual y lo asigna al adapter
     private void loadComments() {
-        Map<String, Object> post = appViewModel.postSeleccionado.getValue();
-        ArrayList<Map<String, Object>> comments = new ArrayList<>();
-        if (post != null && post.get("comments") != null) {
-            comments = (ArrayList<Map<String, Object>>) post.get("comments");
+        Databases databases = new Databases(client);
+        // Filtra por postId
+        List<String> queries = new ArrayList<>();
+        queries.add("equal(\"postId\", \"" + postId + "\")");
+        try {
+            databases.listDocuments(
+                    getString(R.string.APPWRITE_DATABASE_ID),
+                    getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID), // Nuevo ID de la colección de comentarios
+                    queries,
+                    new CoroutineCallback<>((result, error) -> {
+                        if (error != null) {
+                            // Manejo de error
+                            return;
+                        }
+                        // Suponiendo que el result.getDocuments() te da la lista de documentos
+                        ArrayList<Map<String, Object>> comments = new ArrayList<>();
+                        for (var doc : result.getDocuments()) {
+                            comments.add(doc.getData());
+                        }
+                        adapter.setComments(comments);
+                    })
+            );
+        } catch (AppwriteException e) {
+            throw new RuntimeException(e);
         }
-        adapter.setComments(comments);
     }
 
     // Agrega un comentario al arreglo "comments" y actualiza el documento del post
     private void postComment(String commentText) {
-        Map<String, Object> post = appViewModel.postSeleccionado.getValue();
-        if (post == null) return;
-        ArrayList<Map<String, Object>> comments;
-        if (post.get("comments") != null) {
-            comments = (ArrayList<Map<String, Object>>) post.get("comments");
-        } else {
-            comments = new ArrayList<>();
-        }
-        // Crea el nuevo comentario (aquí puedes usar datos reales del usuario si los tienes)
-        HashMap<String, Object> newComment = new HashMap<>();
-        newComment.put("author", "Anónimo"); // O userName si lo tienes
+        // Prepara el nuevo comentario
+        Map<String, Object> newComment = new HashMap<>();
+        newComment.put("postId", postId);
+        newComment.put("author", "Anónimo"); // O el nombre de usuario real
         newComment.put("content", commentText);
         newComment.put("createdAt", System.currentTimeMillis());
-        comments.add(newComment);
-
-        // Prepara el mapa de datos a actualizar
-        Map<String, Object> data = new HashMap<>();
-        data.put("comments", comments);
 
         Databases databases = new Databases(client);
-        Handler mainHandler = new Handler(Looper.getMainLooper());
         try {
-            // Actualiza el documento del post (su id es postId)
-            databases.updateDocument(
+            databases.createDocument(
                     getString(R.string.APPWRITE_DATABASE_ID),
-                    getString(R.string.APPWRITE_POSTS_COLLECTION_ID),
-                    postId,
-                    data,
+                    getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID),
+                    "unique()", // Para que Appwrite genere el ID
+                    newComment,
                     new ArrayList<>(),
                     new CoroutineCallback<>((result, error) -> {
                         if (error != null) {
-                            mainHandler.post(() ->
-                                    Snackbar.make(requireView(), "Error al actualizar comentarios: " + error.toString(), Snackbar.LENGTH_LONG).show()
-                            );
+                            // Muestra error, por ejemplo con Snackbar
                             return;
                         }
-                        // Actualiza el post en el ViewModel con los datos retornados
-                        appViewModel.postSeleccionado.setValue(result.getData());
-                        mainHandler.post(() -> {
-                            commentEditText.setText("");
-                            loadComments();
-                        });
+                        // Vuelve a cargar los comentarios después de publicar
+                        loadComments();
+                        // Limpia el EditText
+                        commentEditText.setText("");
                     })
             );
         } catch (AppwriteException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 }
