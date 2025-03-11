@@ -86,7 +86,7 @@ public class CommentsFragment extends Fragment {
         try {
             databases.listDocuments(
                     getString(R.string.APPWRITE_DATABASE_ID),
-                    getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID), // Nuevo ID de la colección de comentarios
+                    getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID),
                     queries,
                     new CoroutineCallback<>((result, error) -> {
                         if (error != null) {
@@ -95,11 +95,21 @@ public class CommentsFragment extends Fragment {
                             );
                             return;
                         }
-                        // Suponiendo que el result.getDocuments() te da la lista de documentos
+
                         ArrayList<Map<String, Object>> comments = new ArrayList<>();
                         for (var doc : result.getDocuments()) {
-                            comments.add(doc.getData());
+                            Map<String, Object> originalData = doc.getData();
+
+                            // Crear un mapa nuevo con solo los 3 campos que quieres mostrar
+                            Map<String, Object> minimalComment = new HashMap<>();
+                            minimalComment.put("author",   originalData.get("author"));
+                            minimalComment.put("content",  originalData.get("content"));
+                            minimalComment.put("createdAt", originalData.get("createdAt"));
+
+                            comments.add(minimalComment);
                         }
+
+                        // Asignar la lista de comentarios minimalista al adapter
                         adapter.setComments(comments);
                     })
             );
