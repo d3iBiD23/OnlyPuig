@@ -16,6 +16,8 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -79,6 +81,10 @@ public class ProfileFragment extends Fragment {
 
         // Permitir cambiar la foto pulsando sobre ella
         photoImageView.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
+
+        // Nuevo: Listener para el botón "Cambiar foto"
+        ImageButton editPhotoButton = view.findViewById(R.id.editPhotoButton);
+        editPhotoButton.setOnClickListener(v -> imagePickerLauncher.launch("image/*"));
 
         // Cargar los datos del usuario
         Handler mainHandler = new Handler(Looper.getMainLooper());

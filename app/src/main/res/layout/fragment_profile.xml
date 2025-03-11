@@ -1,21 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="wrap_content"
+    android:padding="16dp">
 
-    <ImageView
-        android:id="@+id/photoImageView"
-        android:layout_width="254dp"
-        android:layout_height="wrap_content" />
+    <!-- Contenedor para la imagen de perfil -->
+    <FrameLayout
+        android:id="@+id/profileImageContainer"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="120dp"
+        android:layout_marginEnd="120dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
+        <!-- Botón con ícono de lápiz superpuesto -->
+
+        <ImageView
+            android:id="@+id/photoImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Profile photo"
+            android:scaleType="centerCrop"
+            android:src="@drawable/user" />
+
+        <ImageButton
+            android:id="@+id/editPhotoButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_gravity="bottom|end"
+            android:background="@android:color/transparent"
+            android:contentDescription="Profile button change"
+            android:padding="4dp"
+            android:src="@android:drawable/ic_menu_edit" />
+    </FrameLayout>
+
+    <!-- Nombre de usuario -->
     <TextView
         android:id="@+id/displayNameTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Nombre de usuario"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textAlignment="center"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profileImageContainer" />
 
+    <!-- Correo del usuario -->
     <TextView
         android:id="@+id/emailTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-</LinearLayout>
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="correo@ejemplo.com"
+        android:textAlignment="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/displayNameTextView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
