@@ -1,32 +1,48 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="8dp">
 
-    <TextView
-        android:id="@+id/commentAuthorTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Autor"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+    <!-- Foto del autor del comentario -->
+    <ImageView
+        android:id="@+id/commentProfileImageView"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@drawable/user"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="profile photo" />
 
-    <TextView
-        android:id="@+id/commentTextView"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Texto del comentario" />
+        android:layout_weight="1"
+        android:orientation="vertical">
 
+        <!-- Nombre del autor -->
+        <TextView
+            android:id="@+id/commentAuthorTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Autor"
+            android:textStyle="bold" />
+
+        <!-- Contenido del comentario -->
+        <TextView
+            android:id="@+id/commentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Contenido del comentario" />
+    </LinearLayout>
+
+    <!-- Botón para borrar (opcional) -->
     <TextView
         android:id="@+id/deleteCommentTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        android:text="Borrar comentario"
-        android:textColor="#FF0000"
-        android:textStyle="bold"
-        android:visibility="gone" />
-
+        android:text="Borrar"
+        android:textColor="@android:color/holo_red_dark"
+        android:visibility="gone"
+        android:padding="4dp"/>
 </LinearLayout>
