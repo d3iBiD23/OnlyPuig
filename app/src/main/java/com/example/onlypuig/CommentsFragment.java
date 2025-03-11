@@ -149,7 +149,6 @@ public class CommentsFragment extends Fragment {
                             Map<String, Object> originalData = doc.getData();
                             Map<String, Object> minimalComment = new HashMap<>();
                             minimalComment.put("$id", doc.getId()); // Agrega el ID del comentario
-                            minimalComment.put("uid", originalData.get("uid"));
                             minimalComment.put("author", originalData.get("author"));
                             minimalComment.put("content", originalData.get("content"));
                             minimalComment.put("createdAt", originalData.get("createdAt"));
@@ -181,7 +180,6 @@ public class CommentsFragment extends Fragment {
 
                 // Preparamos el nuevo comentario usando el nombre real del usuario
                 Map<String, Object> newComment = new HashMap<>();
-                newComment.put("uid", userResult.getId().toString());
                 newComment.put("postId", postId);
                 newComment.put("author", userName);
                 newComment.put("content", commentText);
