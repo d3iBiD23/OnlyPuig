@@ -166,14 +166,12 @@ public class CommentsFragment extends Fragment {
 
     // Agrega un comentario al arreglo "comments" y actualiza el documento del post
     private void postComment(String commentText) {
-        // Primero, obtenemos los datos del usuario actual
         Account account = new Account(client);
         try {
             account.get(new CoroutineCallback<>((userResult, userError) -> {
                 if (userError != null) {
                     new Handler(Looper.getMainLooper()).post(() ->
-                            Snackbar.make(requireView(), "Error al obtener usuario: " + userError.getMessage(), Snackbar.LENGTH_LONG).show()
-                    );
+                            Snackbar.make(requireView(), "Error al obtener usuario: " + userError.getMessage(), Snackbar.LENGTH_LONG).show());
                     return;
                 }
                 String userName = userResult.getName().toString();
@@ -182,6 +180,7 @@ public class CommentsFragment extends Fragment {
                 Map<String, Object> newComment = new HashMap<>();
                 newComment.put("postId", postId);
                 newComment.put("author", userName);
+                newComment.put("uid", userResult.getId().toString());
                 newComment.put("content", commentText);
                 newComment.put("createdAt", String.valueOf(System.currentTimeMillis() / 1000));
 
@@ -196,13 +195,11 @@ public class CommentsFragment extends Fragment {
                             new CoroutineCallback<>((result, error) -> {
                                 if (error != null) {
                                     new Handler(Looper.getMainLooper()).post(() ->
-                                            Snackbar.make(requireView(), "Error al crear comentario: " + error.getMessage(), Snackbar.LENGTH_LONG).show()
-                                    );
+                                            Snackbar.make(requireView(), "Error al crear comentario: " + error.getMessage(), Snackbar.LENGTH_LONG).show());
                                     return;
                                 }
                                 // Vuelve a cargar los comentarios después de publicar
                                 loadComments();
-                                // Limpia el EditText
                                 new Handler(Looper.getMainLooper()).post(() -> commentEditText.setText(""));
                             })
                     );

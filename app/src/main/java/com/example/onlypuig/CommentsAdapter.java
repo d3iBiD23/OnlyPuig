@@ -67,7 +67,6 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         holder.commentTextView.setText(content);
 
         // Cargar la foto del autor del comentario
-        // Se asume que el comentario incluye también el campo "uid" del usuario
         if(comment.containsKey("uid")){
             String uid = comment.get("uid").toString();
             loadAuthorProfilePhoto(uid, holder.commentProfileImageView);
