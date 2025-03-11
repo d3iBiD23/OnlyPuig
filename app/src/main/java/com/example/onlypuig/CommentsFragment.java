@@ -81,9 +81,8 @@ public class CommentsFragment extends Fragment {
     // Lee el arreglo "comments" del post actual y lo asigna al adapter
     private void loadComments() {
         Databases databases = new Databases(client);
-        // Filtra por postId
         List<String> queries = new ArrayList<>();
-        queries.add(Query.Companion.equal("postId", postId));
+        queries.add(Query.Companion.equal("postId", postId));  // O usa la cadena si ya está indexado
         try {
             databases.listDocuments(
                     getString(R.string.APPWRITE_DATABASE_ID),
@@ -96,22 +95,18 @@ public class CommentsFragment extends Fragment {
                             );
                             return;
                         }
-
                         ArrayList<Map<String, Object>> comments = new ArrayList<>();
                         for (var doc : result.getDocuments()) {
                             Map<String, Object> originalData = doc.getData();
-
-                            // Crear un mapa nuevo con solo los 3 campos que quieres mostrar
                             Map<String, Object> minimalComment = new HashMap<>();
-                            minimalComment.put("author",   originalData.get("author"));
-                            minimalComment.put("content",  originalData.get("content"));
+                            minimalComment.put("author", originalData.get("author"));
+                            minimalComment.put("content", originalData.get("content"));
                             minimalComment.put("createdAt", originalData.get("createdAt"));
-
                             comments.add(minimalComment);
                         }
-
-                        // Asignar la lista de comentarios minimalista al adapter
-                        adapter.setComments(comments);
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            adapter.setComments(comments);
+                        });
                     })
             );
         } catch (AppwriteException e) {
