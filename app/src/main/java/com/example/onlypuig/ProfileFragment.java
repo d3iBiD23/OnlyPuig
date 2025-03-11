@@ -210,20 +210,38 @@ public class ProfileFragment extends Fragment {
                     getString(R.string.APPWRITE_PROFILE_COLLECTION_ID),
                     queries,
                     new CoroutineCallback<>((result, error) -> {
+                        String photoUrl = null;
                         if (error == null && !result.getDocuments().isEmpty()) {
-                            String profilePhotoUrl = result.getDocuments().get(0)
-                                    .getData().get("profilePhotoUrl").toString();
-                            new Handler(Looper.getMainLooper()).post(() ->
-                                    Glide.with(imageView.getContext())
-                                            .load(profilePhotoUrl)
-                                            .circleCrop()
-                                            .into(imageView));
+                            Object urlObj = result.getDocuments().get(0).getData().get("profilePhotoUrl");
+                            if (urlObj != null) {
+                                photoUrl = urlObj.toString();
+                            }
                         }
+                        final String finalPhotoUrl = photoUrl;
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            if (finalPhotoUrl != null && !finalPhotoUrl.isEmpty()) {
+                                Glide.with(imageView.getContext())
+                                        .load(finalPhotoUrl)
+                                        .circleCrop()
+                                        .into(imageView);
+                            } else {
+                                // Si no hay foto asignada, carga la imagen por defecto
+                                Glide.with(imageView.getContext())
+                                        .load(R.drawable.user)
+                                        .circleCrop()
+                                        .into(imageView);
+                            }
+                        });
                     })
             );
         } catch (AppwriteException e) {
             e.printStackTrace();
+            new Handler(Looper.getMainLooper()).post(() ->
+                    Glide.with(imageView.getContext())
+                            .load(R.drawable.user)
+                            .circleCrop()
+                            .into(imageView)
+            );
         }
     }
-
 }
