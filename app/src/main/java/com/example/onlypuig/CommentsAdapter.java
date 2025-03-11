@@ -32,7 +32,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
     private List<Map<String, Object>> comments;
     private String currentUserName;
     private OnCommentDeleteListener deleteListener;
-    private Client client; // Necesario para las consultas a la base de datos
+    private Client client;
 
     public CommentsAdapter(Client client) {
         this.client = client;
@@ -67,7 +67,7 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         holder.commentTextView.setText(content);
 
         // Cargar la foto del autor del comentario
-        if(comment.containsKey("uid")){
+        if (comment.containsKey("uid") && comment.get("uid") != null) {
             String uid = comment.get("uid").toString();
             loadAuthorProfilePhoto(uid, holder.commentProfileImageView);
         } else {

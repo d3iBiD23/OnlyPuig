@@ -52,6 +52,7 @@ public class CommentsFragment extends Fragment {
         postCommentButton = view.findViewById(R.id.postCommentButton);
 
         commentsRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        client = new Client(requireContext()).setProject(getString(R.string.APPWRITE_PROJECT_ID));
         adapter = new CommentsAdapter(client);
         commentsRecyclerView.setAdapter(adapter);
 
@@ -66,7 +67,6 @@ public class CommentsFragment extends Fragment {
             System.out.println("El post seleccionado es nulo o no contiene $id");
         }
 
-        client = new Client(requireContext()).setProject(getString(R.string.APPWRITE_PROJECT_ID));
 
         // Cargar los comentarios (directamente del post)
         loadComments();
@@ -131,7 +131,7 @@ public class CommentsFragment extends Fragment {
     private void loadComments() {
         Databases databases = new Databases(client);
         List<String> queries = new ArrayList<>();
-        queries.add(Query.Companion.equal("postId", postId));  // O usa la cadena si ya está indexado
+        queries.add(Query.Companion.equal("postId", postId));
         try {
             databases.listDocuments(
                     getString(R.string.APPWRITE_DATABASE_ID),
@@ -148,10 +148,13 @@ public class CommentsFragment extends Fragment {
                         for (var doc : result.getDocuments()) {
                             Map<String, Object> originalData = doc.getData();
                             Map<String, Object> minimalComment = new HashMap<>();
-                            minimalComment.put("$id", doc.getId()); // Agrega el ID del comentario
+                            minimalComment.put("$id", doc.getId());
                             minimalComment.put("author", originalData.get("author"));
                             minimalComment.put("content", originalData.get("content"));
                             minimalComment.put("createdAt", originalData.get("createdAt"));
+
+                            minimalComment.put("uid", originalData.get("uid"));
+
                             comments.add(minimalComment);
                         }
                         new Handler(Looper.getMainLooper()).post(() -> {
