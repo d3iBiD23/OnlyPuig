@@ -100,6 +100,7 @@ public class ProfileFragment extends Fragment {
         } catch (AppwriteException e) {
             e.printStackTrace();
         }
+
     }
 
     private void uploadProfilePhoto(Uri uri) {
@@ -201,4 +202,30 @@ public class ProfileFragment extends Fragment {
         inputStream.close();
         return tempFile;
     }
+    private void loadProfilePhoto(String uid, ImageView imageView) {
+        Databases databases = new Databases(client);
+        List<String> queries = new ArrayList<>();
+        queries.add(Query.Companion.equal("uid", uid));
+        try {
+            databases.listDocuments(
+                    getString(R.string.APPWRITE_DATABASE_ID),
+                    getString(R.string.APPWRITE_PROFILE_COLLECTION_ID),
+                    queries,
+                    new CoroutineCallback<>((result, error) -> {
+                        if (error == null && !result.getDocuments().isEmpty()) {
+                            String profilePhotoUrl = result.getDocuments().get(0)
+                                    .getData().get("profilePhotoUrl").toString();
+                            new Handler(Looper.getMainLooper()).post(() ->
+                                    Glide.with(imageView.getContext())
+                                            .load(profilePhotoUrl)
+                                            .circleCrop()
+                                            .into(imageView));
+                        }
+                    })
+            );
+        } catch (AppwriteException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import io.appwrite.Client;
+import io.appwrite.Query;
 import io.appwrite.coroutines.CoroutineCallback;
 import io.appwrite.exceptions.AppwriteException;
 import io.appwrite.models.DocumentList;
@@ -250,6 +251,32 @@ public class HomeFragment extends Fragment {
             this.lista = lista;
             notifyDataSetChanged();
         }
+        private void loadAuthorProfilePhoto(String uid, ImageView imageView) {
+            Databases databases = new Databases(client);
+            List<String> queries = new ArrayList<>();
+            queries.add(Query.Companion.equal("uid", uid));
+            try {
+                databases.listDocuments(
+                        getString(R.string.APPWRITE_DATABASE_ID),
+                        getString(R.string.APPWRITE_PROFILE_COLLECTION_ID),
+                        queries,
+                        new CoroutineCallback<>((result, error) -> {
+                            if (error == null && !result.getDocuments().isEmpty()) {
+                                String url = result.getDocuments().get(0)
+                                        .getData().get("profilePhotoUrl").toString();
+                                new Handler(Looper.getMainLooper()).post(() ->
+                                        Glide.with(imageView.getContext())
+                                                .load(url)
+                                                .circleCrop()
+                                                .into(imageView));
+                            }
+                        })
+                );
+            } catch (AppwriteException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     void obtenerPosts() {
