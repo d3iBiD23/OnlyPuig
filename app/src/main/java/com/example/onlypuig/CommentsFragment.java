@@ -23,6 +23,7 @@ import java.util.Map;
 import io.appwrite.Client;
 import io.appwrite.coroutines.CoroutineCallback;
 import io.appwrite.exceptions.AppwriteException;
+import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
 import io.appwrite.Query;
 
@@ -116,34 +117,50 @@ public class CommentsFragment extends Fragment {
 
     // Agrega un comentario al arreglo "comments" y actualiza el documento del post
     private void postComment(String commentText) {
-        // Prepara el nuevo comentario
-        Map<String, Object> newComment = new HashMap<>();
-        newComment.put("postId", postId); // Donde postId es el ID del post
-        newComment.put("author", "Anónimo"); // O el nombre de usuario real
-        newComment.put("content", commentText);
-        newComment.put("createdAt", String.valueOf(System.currentTimeMillis() / 1000));
-
-        Databases databases = new Databases(client);
+        // Primero, obtenemos los datos del usuario actual
+        Account account = new Account(client);
         try {
-            databases.createDocument(
-                    getString(R.string.APPWRITE_DATABASE_ID),
-                    getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID),
-                    "unique()", // Para que Appwrite genere el ID
-                    newComment,
-                    new ArrayList<>(),
-                    new CoroutineCallback<>((result, error) -> {
-                        if (error != null) {
-                            new Handler(Looper.getMainLooper()).post(() ->
-                                    Snackbar.make(requireView(), "Error al crear comentario: " + error.getMessage(), Snackbar.LENGTH_LONG).show()
-                            );
-                            return;
-                        }
-                        // Vuelve a cargar los comentarios después de publicar
-                        loadComments();
-                        // Limpia el EditText
-                        commentEditText.setText("");
-                    })
-            );
+            account.get(new CoroutineCallback<>((userResult, userError) -> {
+                if (userError != null) {
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            Snackbar.make(requireView(), "Error al obtener usuario: " + userError.getMessage(), Snackbar.LENGTH_LONG).show()
+                    );
+                    return;
+                }
+                String userName = userResult.getName().toString();
+
+                // Preparamos el nuevo comentario usando el nombre real del usuario
+                Map<String, Object> newComment = new HashMap<>();
+                newComment.put("postId", postId);
+                newComment.put("author", userName);
+                newComment.put("content", commentText);
+                newComment.put("createdAt", String.valueOf(System.currentTimeMillis() / 1000));
+
+                Databases databases = new Databases(client);
+                try {
+                    databases.createDocument(
+                            getString(R.string.APPWRITE_DATABASE_ID),
+                            getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID),
+                            "unique()", // Para que Appwrite genere el ID
+                            newComment,
+                            new ArrayList<>(),
+                            new CoroutineCallback<>((result, error) -> {
+                                if (error != null) {
+                                    new Handler(Looper.getMainLooper()).post(() ->
+                                            Snackbar.make(requireView(), "Error al crear comentario: " + error.getMessage(), Snackbar.LENGTH_LONG).show()
+                                    );
+                                    return;
+                                }
+                                // Vuelve a cargar los comentarios después de publicar
+                                loadComments();
+                                // Limpia el EditText
+                                new Handler(Looper.getMainLooper()).post(() -> commentEditText.setText(""));
+                            })
+                    );
+                } catch (AppwriteException e) {
+                    throw new RuntimeException(e);
+                }
+            }));
         } catch (AppwriteException e) {
             throw new RuntimeException(e);
         }
