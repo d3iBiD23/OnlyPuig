@@ -43,8 +43,6 @@ public class CommentsFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // Asumiendo que en fragment_comments.xml tienes un RecyclerView con id "commentsRecyclerView",
-        // un EditText con id "commentEditText" y un Button con id "postCommentButton".
         commentsRecyclerView = view.findViewById(R.id.commentsRecyclerView);
         commentEditText = view.findViewById(R.id.commentEditText);
         postCommentButton = view.findViewById(R.id.postCommentButton);
@@ -84,7 +82,7 @@ public class CommentsFragment extends Fragment {
         Databases databases = new Databases(client);
         // Filtra por postId
         List<String> queries = new ArrayList<>();
-        queries.add("equal('postId', '" + postId + "')");
+        queries.add("equal(\"postId\", \"" + postId + "\")"); // Usar comillas dobles para el valor del postId
         try {
             databases.listDocuments(
                     getString(R.string.APPWRITE_DATABASE_ID),
@@ -114,7 +112,7 @@ public class CommentsFragment extends Fragment {
     private void postComment(String commentText) {
         // Prepara el nuevo comentario
         Map<String, Object> newComment = new HashMap<>();
-        newComment.put("postId", postId);
+        newComment.put("postId", postId); // Donde postId es el ID del post
         newComment.put("author", "Anónimo"); // O el nombre de usuario real
         newComment.put("content", commentText);
         newComment.put("createdAt", String.valueOf(System.currentTimeMillis() / 1000));
