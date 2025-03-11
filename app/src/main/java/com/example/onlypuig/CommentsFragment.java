@@ -84,7 +84,7 @@ public class CommentsFragment extends Fragment {
         Databases databases = new Databases(client);
         // Filtra por postId
         List<String> queries = new ArrayList<>();
-        queries.add("equal(\"postId\", \"" + postId + "\")");
+        queries.add("equal('postId', '" + postId + "')");
         try {
             databases.listDocuments(
                     getString(R.string.APPWRITE_DATABASE_ID),
@@ -117,7 +117,7 @@ public class CommentsFragment extends Fragment {
         newComment.put("postId", postId);
         newComment.put("author", "Anónimo"); // O el nombre de usuario real
         newComment.put("content", commentText);
-        newComment.put("createdAt", System.currentTimeMillis());
+        newComment.put("createdAt", String.valueOf(System.currentTimeMillis() / 1000));
 
         Databases databases = new Databases(client);
         try {
