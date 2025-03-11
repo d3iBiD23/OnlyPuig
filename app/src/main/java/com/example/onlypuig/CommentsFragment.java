@@ -35,6 +35,7 @@ public class CommentsFragment extends Fragment {
     private AppViewModel appViewModel;
     private Client client;
     private String postId;
+    private String currentUserName;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -77,8 +78,47 @@ public class CommentsFragment extends Fragment {
             }
             postComment(commentText);
         });
+
+        // Obtén el usuario actual
+        Account account = new Account(client);
+        try {
+            account.get(new CoroutineCallback<>((userResult, userError) -> {
+                if (userError != null) {
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            Snackbar.make(requireView(), "Error al obtener usuario: " + userError.getMessage(), Snackbar.LENGTH_LONG).show());
+                    return;
+                }
+                currentUserName = userResult.getName().toString();
+                new Handler(Looper.getMainLooper()).post(() -> adapter.setCurrentUserName(currentUserName));
+            }));
+        } catch (AppwriteException e) {
+            e.printStackTrace();
+        }
+
+        // Configura el callback para borrar un comentario
+        adapter.setOnCommentDeleteListener(comment -> {
+            String commentId = comment.get("$id").toString();
+            deleteComment(commentId);
+        });
     }
 
+    private void deleteComment(String commentId) {
+        Databases databases = new Databases(client);
+        databases.deleteDocument(
+                getString(R.string.APPWRITE_DATABASE_ID),
+                getString(R.string.APPWRITE_COMMENTS_COLLECTION_ID),
+                commentId,
+                new CoroutineCallback<>((result, error) -> {
+                    if (error != null) {
+                        new Handler(Looper.getMainLooper()).post(() ->
+                                Snackbar.make(requireView(), "Error al eliminar comentario: " + error.getMessage(), Snackbar.LENGTH_LONG).show());
+                        return;
+                    }
+                    // Recarga los comentarios tras la eliminación
+                    new Handler(Looper.getMainLooper()).post(() -> loadComments());
+                })
+        );
+    }
     // Lee el arreglo "comments" del post actual y lo asigna al adapter
     private void loadComments() {
         Databases databases = new Databases(client);
@@ -100,6 +140,7 @@ public class CommentsFragment extends Fragment {
                         for (var doc : result.getDocuments()) {
                             Map<String, Object> originalData = doc.getData();
                             Map<String, Object> minimalComment = new HashMap<>();
+                            minimalComment.put("$id", doc.getId()); // Agrega el ID del comentario
                             minimalComment.put("author", originalData.get("author"));
                             minimalComment.put("content", originalData.get("content"));
                             minimalComment.put("createdAt", originalData.get("createdAt"));

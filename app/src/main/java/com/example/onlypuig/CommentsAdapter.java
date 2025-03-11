@@ -3,6 +3,7 @@ package com.example.onlypuig;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,11 +16,24 @@ import io.appwrite.models.DocumentList;
 
 public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.CommentViewHolder> {
 
+    public interface OnCommentDeleteListener {
+        void onDeleteComment(Map<String, Object> comment);
+    }
     private List<Map<String, Object>> comments;
+    private String currentUserName;
+    private OnCommentDeleteListener deleteListener;
 
     public void setComments(List<Map<String, Object>> comments) {
         this.comments = comments;
         notifyDataSetChanged();
+    }
+
+    public void setCurrentUserName(String currentUserName) {
+        this.currentUserName = currentUserName;
+    }
+
+    public void setOnCommentDeleteListener(OnCommentDeleteListener listener) {
+        this.deleteListener = listener;
     }
 
     @NonNull
@@ -36,6 +50,18 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
         String content = comment.get("content") != null ? comment.get("content").toString() : "";
         holder.authorTextView.setText(author);
         holder.commentTextView.setText(content);
+
+        // Mostrar botón de borrar solo si el comentario pertenece al usuario actual
+        if (currentUserName != null && currentUserName.equals(author)) {
+            holder.deleteCommentButton.setVisibility(View.VISIBLE);
+            holder.deleteCommentButton.setOnClickListener(v -> {
+                if (deleteListener != null) {
+                    deleteListener.onDeleteComment(comment);
+                }
+            });
+        } else {
+            holder.deleteCommentButton.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -45,10 +71,12 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     static class CommentViewHolder extends RecyclerView.ViewHolder {
         TextView authorTextView, commentTextView;
+        ImageView deleteCommentButton;
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             authorTextView = itemView.findViewById(R.id.commentAuthorTextView);
             commentTextView = itemView.findViewById(R.id.commentTextView);
+            deleteCommentButton = itemView.findViewById(R.id.deleteCommentButton);
         }
     }
 }
