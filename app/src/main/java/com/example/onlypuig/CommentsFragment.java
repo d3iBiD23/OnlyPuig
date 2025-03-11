@@ -24,6 +24,7 @@ import io.appwrite.Client;
 import io.appwrite.coroutines.CoroutineCallback;
 import io.appwrite.exceptions.AppwriteException;
 import io.appwrite.services.Databases;
+import io.appwrite.Query;
 
 public class CommentsFragment extends Fragment {
     private RecyclerView commentsRecyclerView;
@@ -82,7 +83,7 @@ public class CommentsFragment extends Fragment {
         Databases databases = new Databases(client);
         // Filtra por postId
         List<String> queries = new ArrayList<>();
-        queries.add("equal(\"postId\", \"" + postId + "\")"); // Usar comillas dobles para el valor del postId
+        queries.add(Query.Companion.equal("postId", postId));
         try {
             databases.listDocuments(
                     getString(R.string.APPWRITE_DATABASE_ID),
