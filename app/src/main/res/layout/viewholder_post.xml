@@ -30,6 +30,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
+                android:textStyle="bold"
+                android:textSize="18sp"
                 android:text="Author" />
             <TextView
                 android:id="@+id/dateTextView"
@@ -37,7 +39,8 @@
                 android:layout_height="wrap_content"
                 android:text="Fecha"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="4dp"
+                android:textSize="12dp"/>
 
             <TextView
                 android:id="@+id/contentTextView"
@@ -45,7 +48,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:text="Contenido"
-                android:textSize="20sp" />
+                android:textSize="16sp" />
 
             <ImageView
                 android:id="@+id/mediaImage"
