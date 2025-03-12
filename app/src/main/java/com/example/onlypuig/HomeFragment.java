@@ -176,21 +176,7 @@ public class HomeFragment extends Fragment {
 
             // Formatear y mostrar la fecha de publicación
             String createdAt = document.getCreatedAt(); // Se asume que retorna un String en formato ISO8601, ej. "2021-10-20T14:30:00.000Z"
-            try {
-                // Configuramos el parser para ISO8601 (ajusta el patrón si es necesario)
-                SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-                isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                Date date = isoFormat.parse(createdAt);
-
-                // Formateamos la fecha al formato deseado (por ejemplo, "dd/MM/yyyy HH:mm")
-                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                String formattedDate = outputFormat.format(date);
-                holder.dateTextView.setText(formattedDate);
-            } catch (ParseException e) {
-                e.printStackTrace();
-                // Si falla el parseo, muestra el string original o un mensaje de error
-                holder.dateTextView.setText(createdAt);
-            }
+            holder.dateTextView.setText(getRelativeTime(createdAt));
 
             // Gestión de likes (código existente)
             List<String> likes = (List<String>) post.get("likes");
@@ -268,6 +254,43 @@ public class HomeFragment extends Fragment {
                 });
             } else {
                 holder.deleteImageView.setVisibility(View.GONE);
+            }
+        }
+
+        private String getRelativeTime(String createdAt) {
+            // Primer patrón: con milisegundos
+            SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+            isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date date = null;
+            try {
+                date = isoFormat.parse(createdAt);
+            } catch (ParseException e) {
+                // Si falla, probamos sin milisegundos
+                try {
+                    SimpleDateFormat fallbackFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                    fallbackFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    date = fallbackFormat.parse(createdAt);
+                } catch (ParseException ex) {
+                    ex.printStackTrace();
+                    return createdAt; // Retorna el string original si no se puede parsear
+                }
+            }
+            long time = date.getTime();
+            long now = System.currentTimeMillis();
+            long diff = now - time;
+
+            if (diff < 60000) { // Menos de 1 minuto
+                long seconds = diff / 1000;
+                return "Publicado hace " + seconds + " seg";
+            } else if (diff < 3600000) { // Menos de 1 hora
+                long minutes = diff / 60000;
+                return "Publicado hace " + minutes + " min";
+            } else if (diff < 86400000) { // Menos de 1 día
+                long hours = diff / 3600000;
+                return "Publicado hace " + hours + " h";
+            } else { // 1 día o más
+                long days = diff / 86400000;
+                return "Publicado hace " + days + (days > 1 ? " dias" : " dia");
             }
         }
 
