@@ -24,16 +24,22 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 import io.appwrite.Client;
 import io.appwrite.Query;
 import io.appwrite.coroutines.CoroutineCallback;
 import io.appwrite.exceptions.AppwriteException;
+import io.appwrite.models.Document;
 import io.appwrite.models.DocumentList;
 import io.appwrite.services.Account;
 import io.appwrite.services.Databases;
@@ -125,7 +131,7 @@ public class HomeFragment extends Fragment {
 
     class PostViewHolder extends RecyclerView.ViewHolder {
         ImageView authorPhotoImageView, likeImageView, mediaImageView, deleteImageView;
-        TextView authorTextView, contentTextView, numLikesTextView, commentTextView;
+        TextView authorTextView, contentTextView, numLikesTextView, commentTextView, dateTextView;
 
         PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -137,6 +143,7 @@ public class HomeFragment extends Fragment {
             contentTextView = itemView.findViewById(R.id.contentTextView);
             numLikesTextView = itemView.findViewById(R.id.numLikesTextView);
             commentTextView = itemView.findViewById(R.id.commentTextView);
+            dateTextView = itemView.findViewById(R.id.dateTextView);
         }
     }
 
@@ -152,7 +159,13 @@ public class HomeFragment extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-            Map<String, Object> post = lista.getDocuments().get(position).getData();
+
+            // Obtener el documento completo
+            Document<Map<String, Object>> document = lista.getDocuments().get(position);
+            Map<String, Object> post = document.getData();
+
+            holder.authorTextView.setText(post.get("author").toString());
+            holder.contentTextView.setText(post.get("content").toString());
 
             // Configuración de la imagen del autor
             if (post.get("uid") != null) {
@@ -161,8 +174,23 @@ public class HomeFragment extends Fragment {
                 holder.authorPhotoImageView.setImageResource(R.drawable.user);
             }
 
-            holder.authorTextView.setText(post.get("author").toString());
-            holder.contentTextView.setText(post.get("content").toString());
+            // Formatear y mostrar la fecha de publicación
+            String createdAt = document.getCreatedAt(); // Se asume que retorna un String en formato ISO8601, ej. "2021-10-20T14:30:00.000Z"
+            try {
+                // Configuramos el parser para ISO8601 (ajusta el patrón si es necesario)
+                SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+                isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                Date date = isoFormat.parse(createdAt);
+
+                // Formateamos la fecha al formato deseado (por ejemplo, "dd/MM/yyyy HH:mm")
+                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+                String formattedDate = outputFormat.format(date);
+                holder.dateTextView.setText(formattedDate);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                // Si falla el parseo, muestra el string original o un mensaje de error
+                holder.dateTextView.setText(createdAt);
+            }
 
             // Gestión de likes (código existente)
             List<String> likes = (List<String>) post.get("likes");
