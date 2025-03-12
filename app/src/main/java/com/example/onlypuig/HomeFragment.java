@@ -1,6 +1,7 @@
 package com.example.onlypuig;
 
 import android.app.AlertDialog;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -26,7 +27,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -34,6 +37,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+
 
 import io.appwrite.Client;
 import io.appwrite.Query;
@@ -258,39 +262,30 @@ public class HomeFragment extends Fragment {
         }
 
         private String getRelativeTime(String createdAt) {
-            // Primer patrón: con milisegundos
-            SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-            isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-            Date date = null;
             try {
-                date = isoFormat.parse(createdAt);
-            } catch (ParseException e) {
-                // Si falla, probamos sin milisegundos
-                try {
-                    SimpleDateFormat fallbackFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
-                    fallbackFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                    date = fallbackFormat.parse(createdAt);
-                } catch (ParseException ex) {
-                    ex.printStackTrace();
-                    return createdAt; // Retorna el string original si no se puede parsear
+                // Instant.parse() interpreta directamente el string en formato ISO-8601.
+                Instant created = Instant.parse(createdAt);
+                Duration duration = null;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    duration = Duration.between(created, Instant.now());
                 }
-            }
-            long time = date.getTime();
-            long now = System.currentTimeMillis();
-            long diff = now - time;
-
-            if (diff < 60000) { // Menos de 1 minuto
-                long seconds = diff / 1000;
-                return "Publicado hace " + seconds + " seg";
-            } else if (diff < 3600000) { // Menos de 1 hora
-                long minutes = diff / 60000;
-                return "Publicado hace " + minutes + " min";
-            } else if (diff < 86400000) { // Menos de 1 día
-                long hours = diff / 3600000;
-                return "Publicado hace " + hours + " h";
-            } else { // 1 día o más
-                long days = diff / 86400000;
-                return "Publicado hace " + days + (days > 1 ? " dias" : " dia");
+                long seconds = duration.getSeconds();
+                if (seconds < 60) {
+                    return "Publicado hace " + seconds + " seg";
+                } else if (seconds < 3600) {
+                    long minutes = seconds / 60;
+                    return "Publicado hace " + minutes + " min";
+                } else if (seconds < 86400) {
+                    long hours = seconds / 3600;
+                    return "Publicado hace " + hours + " h";
+                } else {
+                    long days = seconds / 86400;
+                    return "Publicado hace " + days + (days > 1 ? " dias" : " dia");
+                }
+            } catch (DateTimeParseException e) {
+                e.printStackTrace();
+                // Si falla, retorna el string original (o podrías retornar otro mensaje de error)
+                return createdAt;
             }
         }
 
