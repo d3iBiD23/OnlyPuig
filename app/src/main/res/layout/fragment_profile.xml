@@ -29,7 +29,7 @@
             android:id="@+id/editPhotoButton"
             android:layout_width="36dp"
             android:layout_height="36dp"
-            android:layout_gravity="bottom|end"
+            android:layout_gravity="top|end"
             android:background="@android:color/transparent"
             android:contentDescription="Profile button change"
             android:padding="4dp"
