@@ -151,9 +151,8 @@ public class CommentsFragment extends Fragment {
                             minimalComment.put("$id", doc.getId());
                             minimalComment.put("author", originalData.get("author"));
                             minimalComment.put("content", originalData.get("content"));
-
                             minimalComment.put("uid", originalData.get("uid"));
-
+                            minimalComment.put("$createdAt", doc.getCreatedAt());
                             comments.add(minimalComment);
                         }
                         new Handler(Looper.getMainLooper()).post(() -> {

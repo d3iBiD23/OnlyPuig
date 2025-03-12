@@ -1,5 +1,6 @@
 package com.example.onlypuig;
 
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -9,10 +10,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -74,6 +79,10 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             holder.commentProfileImageView.setImageResource(R.drawable.user);
         }
 
+        // Recuperar y formatear la fecha de creación
+        String createdAt = comment.get("$createdAt") != null ? comment.get("$createdAt").toString() : "";
+        holder.commentDateTextView.setText(getRelativeTime(createdAt));
+
         // Mostrar "Borrar comentario" solo si el comentario pertenece al usuario actual
         if (currentUserName != null && currentUserName.equals(author)) {
             holder.deleteCommentTextView.setVisibility(View.VISIBLE);
@@ -84,6 +93,34 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
             });
         } else {
             holder.deleteCommentTextView.setVisibility(View.GONE);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String getRelativeTime(String createdAt) {
+        try {
+            // Utiliza Instant.parse para interpretar el string en formato ISO-8601.
+            Instant created = Instant.parse(createdAt);
+            Duration duration = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                duration = Duration.between(created, Instant.now());
+            }
+            long seconds = duration.getSeconds();
+            if (seconds < 60) {
+                return "Hace " + seconds + " seg";
+            } else if (seconds < 3600) {
+                long minutes = seconds / 60;
+                return "Hace " + minutes + " min";
+            } else if (seconds < 86400) {
+                long hours = seconds / 3600;
+                return "Hace " + hours + " h";
+            } else {
+                long days = seconds / 86400;
+                return "Hace " + days + (days > 1 ? " dias" : " dia");
+            }
+        } catch (DateTimeParseException e) {
+            e.printStackTrace();
+            return createdAt; // En caso de error, se muestra el valor original.
         }
     }
 
@@ -139,13 +176,14 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
     static class CommentViewHolder extends RecyclerView.ViewHolder {
         ImageView commentProfileImageView;
-        TextView authorTextView, commentTextView, deleteCommentTextView;
+        TextView authorTextView, commentTextView, deleteCommentTextView, commentDateTextView;
         public CommentViewHolder(@NonNull View itemView) {
             super(itemView);
             commentProfileImageView = itemView.findViewById(R.id.commentProfileImageView);
             authorTextView = itemView.findViewById(R.id.commentAuthorTextView);
             commentTextView = itemView.findViewById(R.id.commentTextView);
             deleteCommentTextView = itemView.findViewById(R.id.deleteCommentTextView);
+            commentDateTextView = itemView.findViewById(R.id.commentDateTextView);
         }
     }
 }

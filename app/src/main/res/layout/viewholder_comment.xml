@@ -21,6 +21,7 @@
         android:orientation="vertical">
 
         <!-- Nombre del autor -->
+
         <TextView
             android:id="@+id/commentAuthorTextView"
             android:layout_width="wrap_content"
@@ -30,9 +31,17 @@
 
         <!-- Contenido del comentario -->
         <TextView
+            android:id="@+id/commentDateTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fecha"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+
+        <TextView
             android:id="@+id/commentTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
             android:text="Contenido del comentario" />
     </LinearLayout>
 
