@@ -151,7 +151,6 @@ public class CommentsFragment extends Fragment {
                             minimalComment.put("$id", doc.getId());
                             minimalComment.put("author", originalData.get("author"));
                             minimalComment.put("content", originalData.get("content"));
-                            minimalComment.put("createdAt", originalData.get("createdAt"));
 
                             minimalComment.put("uid", originalData.get("uid"));
 
@@ -185,7 +184,6 @@ public class CommentsFragment extends Fragment {
                 newComment.put("author", userName);
                 newComment.put("uid", userResult.getId().toString());
                 newComment.put("content", commentText);
-                newComment.put("createdAt", String.valueOf(System.currentTimeMillis() / 1000));
 
                 Databases databases = new Databases(client);
                 try {
