@@ -109,7 +109,7 @@ public class ProfileFragment extends Fragment {
 
     private void uploadProfilePhoto(Uri uri) {
         try {
-            File file = getFileFromUri(requireContext(), uri);
+            File file = FileUtils.getFileFromUri(requireContext(), uri);
             // Sube el archivo al bucket de perfil (el bucket ID debe estar definido en tus recursos, p.ej. APPWRITE_PROFILE_BUCKET_ID)
             storage.createFile(getString(R.string.APPWRITE_PROFILE_BUCKET), "unique()",
                     InputFile.Companion.fromFile(file), new ArrayList<>(),
@@ -187,24 +187,6 @@ public class ProfileFragment extends Fragment {
         } catch(AppwriteException e) {
             e.printStackTrace();
         }
-    }
-
-    // Metodo auxiliar similar al que ya tienes en NewPostFragment
-    public File getFileFromUri(Context context, Uri uri) throws Exception {
-        InputStream inputStream = context.getContentResolver().openInputStream(uri);
-        if(inputStream == null)
-            throw new FileNotFoundException("No se pudo abrir el URI: " + uri);
-        String fileName = "profile_photo.jpg";
-        File tempFile = new File(context.getCacheDir(), fileName);
-        FileOutputStream outputStream = new FileOutputStream(tempFile);
-        byte[] buffer = new byte[1024];
-        int length;
-        while((length = inputStream.read(buffer)) > 0) {
-            outputStream.write(buffer, 0, length);
-        }
-        outputStream.close();
-        inputStream.close();
-        return tempFile;
     }
     private void loadProfilePhoto(String uid, ImageView imageView) {
         Databases databases = new Databases(client);

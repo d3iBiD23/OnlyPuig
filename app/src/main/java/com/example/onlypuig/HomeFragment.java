@@ -242,7 +242,7 @@ public class HomeFragment extends Fragment {
                 // Guardamos el post actual en el ViewModel para que el fragmento de comentarios lo reciba
                 appViewModel.postSeleccionado.setValue(post);
                 // Navegamos al fragmento de comentarios (asegúrate de tener definido el id en tu nav_graph)
-                navController.navigate(R.id.commentsRecyclerView);
+                navController.navigate(R.id.commentsFragment);
             });
 
             // Mostrar botón de eliminar solo si el usuario es el autor del post
