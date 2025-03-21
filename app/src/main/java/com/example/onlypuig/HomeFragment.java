@@ -180,7 +180,9 @@ public class HomeFragment extends Fragment {
 
             // Formatear y mostrar la fecha de publicación
             String createdAt = document.getCreatedAt(); // Se asume que retorna un String en formato ISO8601, ej. "2021-10-20T14:30:00.000Z"
-            holder.dateTextView.setText(getRelativeTime(createdAt));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                holder.dateTextView.setText(TimeUtils.getRelativeTime(createdAt));
+            }
 
             // Gestión de likes (código existente)
             List<String> likes = (List<String>) post.get("likes");

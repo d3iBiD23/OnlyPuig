@@ -208,7 +208,7 @@ public class NewPostFragment extends Fragment {
         Storage storage = new Storage(client);
         File tempFile = null;
         try {
-            tempFile = getFileFromUri(getContext(), mediaUri);
+            tempFile = FileUtils.getFileFromUri(getContext(), mediaUri);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -226,36 +226,5 @@ public class NewPostFragment extends Fragment {
                         guardarEnAppWrite(user, postText, downloadUrl);
                     });
                 }));
-    }
-
-    public File getFileFromUri(Context context, Uri uri) throws Exception {
-        InputStream inputStream = context.getContentResolver().openInputStream(uri);
-        if (inputStream == null) {
-            throw new FileNotFoundException("No se pudo abrir el URI: " + uri);
-        }
-        String fileName = getFileName(context, uri);
-        File tempFile = new File(context.getCacheDir(), fileName);
-        FileOutputStream outputStream = new FileOutputStream(tempFile);
-        byte[] buffer = new byte[1024];
-        int length;
-        while ((length = inputStream.read(buffer)) > 0) {
-            outputStream.write(buffer, 0, length);
-        }
-        outputStream.close();
-        inputStream.close();
-        return tempFile;
-    }
-
-    private String getFileName(Context context, Uri uri) {
-        String fileName = "temp_file";
-        try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                if (nameIndex != -1) {
-                    fileName = cursor.getString(nameIndex);
-                }
-            }
-        }
-        return fileName;
     }
 }

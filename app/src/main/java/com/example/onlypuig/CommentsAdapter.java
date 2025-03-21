@@ -81,7 +81,9 @@ public class CommentsAdapter extends RecyclerView.Adapter<CommentsAdapter.Commen
 
         // Recuperar y formatear la fecha de creación
         String createdAt = comment.get("$createdAt") != null ? comment.get("$createdAt").toString() : "";
-        holder.commentDateTextView.setText(getRelativeTime(createdAt));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            holder.commentDateTextView.setText(TimeUtils.getRelativeTime(createdAt));
+        }
 
         // Mostrar "Borrar comentario" solo si el comentario pertenece al usuario actual
         if (currentUserName != null && currentUserName.equals(author)) {
